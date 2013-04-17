@@ -1,0 +1,10 @@
+target/
+src/*~
+src/*.bak
+test/*~
+test/*.bak
+project
+*~
+*.bak
+.history
+*.scala
