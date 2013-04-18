@@ -1,11 +1,6 @@
 target/
-src/*~
-src/*.bak
 src/main/resources/prvkey.ppk
 test/*~
 test/*.bak
 project
-*~
-*.bak
 .history
-*.scala
