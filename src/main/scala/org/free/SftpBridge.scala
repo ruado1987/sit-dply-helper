@@ -9,7 +9,10 @@ class SftpBridge private(val vfsManager: FileSystemManager, val connectionUrl: S
     lazy val builder = SftpFileSystemConfigBuilder.getInstance()
     
     def sftpOptions = {
-        val prvKey = new File(getClass.getResource("/prvkey.ppk").getPath())
+        // URI doesnt encode whitespaces in file path.
+        // If an encoded file path is passed to the File constructor,
+        // it may throw exception because it is not aware of encoded file path
+        val prvKey = new File(getClass.getResource("/prvkey.ppk").toURI.getPath)
         val fsOptions = new FileSystemOptions()
         builder.setStrictHostKeyChecking(fsOptions, "no");
         builder.setIdentities(fsOptions, Array[File](prvKey))
@@ -17,12 +20,19 @@ class SftpBridge private(val vfsManager: FileSystemManager, val connectionUrl: S
         fsOptions
     }
 
-    def dir(dirname: String)(f: RemoteFile => Unit) {
+    def dir(dirname: String)(f: VirtualFile => Unit) {
         val remoteURL = connectionUrl + dirname
         val remoteFileObject = vfsManager.resolveFile(remoteURL, sftpOptions)
         for ( child <- remoteFileObject.getChildren() ) {
-            f(new RemoteFile(child))
+            f(new VirtualFile(child))
         }
+    }
+
+    def push(localPath: String, remotePath: String) {
+        val localFile = vfsManager.resolveFile(localPath);
+        val remoteFile = vfsManager.resolveFile(connectionUrl + remotePath, sftpOptions)
+
+        remoteFile.copyFrom(localFile, new FileTypeSelector(FileType.FILE))
     }
 }
 
@@ -35,6 +45,10 @@ object SftpBridge {
         
     implicit def stringToFileObject(path: String) : FileObject = {
         fsManager.resolveFile(path)
+    }
+    
+    implicit def stringToVirtualFile(path: String) : VirtualFile = {
+        new VirtualFile(fsManager.resolveFile(path))
     }
 }
 
