@@ -12,6 +12,7 @@ libraryDependencies += "org.scalatest" % "scalatest_2.10" % "1.9.1" % "test"
 
 libraryDependencies += "org.mockito" % "mockito-all" % "1.9.5" % "test"
 
+libraryDependencies += "org.apache.sshd" % "sshd-core" % "0.8.0"
 
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oDSF")
 

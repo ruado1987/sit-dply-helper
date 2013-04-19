@@ -42,11 +42,7 @@ object SftpBridge {
 
     def apply(vfsm: FileSystemManager = fsManager, conUrl: String = "sftp://wasuser@172.20.1.79:22") =
         new SftpBridge(vfsm, conUrl)
-        
-    implicit def stringToFileObject(path: String) : FileObject = {
-        fsManager.resolveFile(path)
-    }
-    
+
     implicit def stringToVirtualFile(path: String) : VirtualFile = {
         new VirtualFile(fsManager.resolveFile(path))
     }
