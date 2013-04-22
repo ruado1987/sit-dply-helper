@@ -5,10 +5,13 @@ import java.io.File
 import org.apache.commons.vfs2.FileSystemOptions
 import org.apache.commons.vfs2.auth.StaticUserAuthenticator
 import org.apache.commons.vfs2.impl.DefaultFileSystemConfigBuilder
-import org.apache.commons.vfs2.provider.sftp.SftpFileSystemConfigBuilder
+import org.apache.commons.vfs2.provider.sftp._
+
+import com.jcraft.jsch._
 
 sealed abstract class AuthenticationType {
   def toFileSystemOptions : FileSystemOptions
+  def authenticate( host: String, port : Int ) : Session
 }
 
 case class PasswordAuthentication( username : String, password : String ) extends AuthenticationType {
@@ -22,9 +25,17 @@ case class PasswordAuthentication( username : String, password : String ) extend
 
     fsOps
   }
+  
+  def authenticate( host: String, port : Int ) : Session = {
+    SftpClientFactory.createConnection(
+                        host, port.toInt,
+                        username.toCharArray,
+                        password.toCharArray,
+                        toFileSystemOptions)
+  }
 }
 
-case class PublicKeyAuthentication( keyPath : String ) extends AuthenticationType {
+case class PublicKeyAuthentication( username : String, keyPath : String ) extends AuthenticationType {
 
   def toFileSystemOptions : FileSystemOptions = {
     val fsOps = new FileSystemOptions()
@@ -34,5 +45,13 @@ case class PublicKeyAuthentication( keyPath : String ) extends AuthenticationTyp
     builder.setIdentities( fsOps, Array[ File ]( new File( keyPath ) ) )
 
     fsOps
+  }
+  
+  def authenticate( host: String, port : Int ) : Session = {
+    SftpClientFactory.createConnection(
+                        host, port.toInt,
+                        username.toCharArray,
+                        null,
+                        toFileSystemOptions)
   }
 }

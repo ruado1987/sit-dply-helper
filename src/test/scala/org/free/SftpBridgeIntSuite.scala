@@ -1,10 +1,12 @@
 package org.free
 
 import java.io.File
+import java.util.EnumSet
 
 import scala.collection.JavaConversions._
 
 import org.apache.sshd.SshServer
+import org.apache.sshd.server.shell.ProcessShellFactory
 import org.apache.sshd.server.auth.UserAuthNone
 import org.apache.sshd.server.command.ScpCommandFactory
 import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider
@@ -23,6 +25,8 @@ class SftpBridgeIntSuite extends FunSuite with BeforeAndAfterAll {
     val userAuthFactories = List( new UserAuthNone.Factory() )
     val namedFactoryList = List( new SftpSubsystem.Factory() )
     val pwdAuth = new PasswordAuthentication( "harry", "test" )
+    val shellFactory = new ProcessShellFactory(Array[String]( "cmd.exe" ),
+                 EnumSet.of(ProcessShellFactory.TtyOptions.Echo, ProcessShellFactory.TtyOptions.ICrNl, ProcessShellFactory.TtyOptions.ONlCr))
 
     bridge = SftpBridge( conUrl = s"sftp://harry@localhost:$port/", authType = pwdAuth )
     sshd = SshServer.setUpDefaultServer()
@@ -32,6 +36,7 @@ class SftpBridgeIntSuite extends FunSuite with BeforeAndAfterAll {
     sshd.setUserAuthFactories( userAuthFactories )
     sshd.setCommandFactory( new ScpCommandFactory() )
     sshd.setSubsystemFactories( namedFactoryList )
+    sshd.setShellFactory( shellFactory )
     sshd.start()
   }
 
@@ -59,4 +64,14 @@ class SftpBridgeIntSuite extends FunSuite with BeforeAndAfterAll {
 
     f( file )
   }
+
+  test( "execute command" ) {
+/*    val pwdAuth = new PublicKeyAuthentication(
+                        "twsapp01",
+                        getClass.getResource("/prvkey.ppk").toURI.getPath )
+
+    bridge = SftpBridge( conUrl = s"sftp://twsapp01@172.20.1.79:22/", authType = pwdAuth )*/
+    assert( bridge.exec( "dir" ) == 0 )
+  }
+
 }
