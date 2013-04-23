@@ -5,14 +5,15 @@ import java.util.EnumSet
 
 import scala.collection.JavaConversions._
 
-import org.apache.sshd.SshServer
-import org.apache.sshd.server.shell.ProcessShellFactory
-import org.apache.sshd.server.auth.UserAuthNone
-import org.apache.sshd.server.command.ScpCommandFactory
-import org.apache.sshd.server.keyprovider.SimpleGeneratorHostKeyProvider
-import org.apache.sshd.server.sftp.SftpSubsystem
-import org.scalatest.BeforeAndAfterAll
-import org.scalatest.FunSuite
+import org.apache.sshd._
+import common.util._
+import server._
+import shell.ProcessShellFactory
+import auth.UserAuthNone
+import command.ScpCommandFactory
+import keyprovider.SimpleGeneratorHostKeyProvider
+import sftp.SftpSubsystem
+import org.scalatest._
 
 class SftpBridgeIntSuite extends FunSuite with BeforeAndAfterAll {
 
@@ -21,12 +22,17 @@ class SftpBridgeIntSuite extends FunSuite with BeforeAndAfterAll {
 
   val port = 2222
 
+  object SimpleCommandFactory extends CommandFactory {
+    override def createCommand( command : String ) : Command = {
+      val winCmd = if ( OsUtils.isUNIX() ) command else s"cmd.exe /C $command"
+      return new ProcessShellFactory( winCmd.split( " " ) ).create()
+    }
+  }
+
   override def beforeAll {
     val userAuthFactories = List( new UserAuthNone.Factory() )
     val namedFactoryList = List( new SftpSubsystem.Factory() )
     val pwdAuth = new PasswordAuthentication( "harry", "test" )
-    val shellFactory = new ProcessShellFactory(Array[String]( "cmd.exe" ),
-                 EnumSet.of(ProcessShellFactory.TtyOptions.Echo, ProcessShellFactory.TtyOptions.ICrNl, ProcessShellFactory.TtyOptions.ONlCr))
 
     bridge = SftpBridge( conUrl = s"sftp://harry@localhost:$port/", authType = pwdAuth )
     sshd = SshServer.setUpDefaultServer()
@@ -34,9 +40,8 @@ class SftpBridgeIntSuite extends FunSuite with BeforeAndAfterAll {
     sshd.setPort( port )
     sshd.setKeyPairProvider( new SimpleGeneratorHostKeyProvider( "hostkey.ser" ) )
     sshd.setUserAuthFactories( userAuthFactories )
-    sshd.setCommandFactory( new ScpCommandFactory() )
+    sshd.setCommandFactory( new ScpCommandFactory( SimpleCommandFactory ) )
     sshd.setSubsystemFactories( namedFactoryList )
-    sshd.setShellFactory( shellFactory )
     sshd.start()
   }
 
@@ -65,13 +70,9 @@ class SftpBridgeIntSuite extends FunSuite with BeforeAndAfterAll {
     f( file )
   }
 
-  test( "execute command" ) {
-/*    val pwdAuth = new PublicKeyAuthentication(
-                        "twsapp01",
-                        getClass.getResource("/prvkey.ppk").toURI.getPath )
-
-    bridge = SftpBridge( conUrl = s"sftp://twsapp01@172.20.1.79:22/", authType = pwdAuth )*/
-    assert( bridge.exec( "dir" ) == 0 )
+  test( "execute remote command" ) {
+    val exitStatus = bridge.exec( "echo test" )
+    assert( exitStatus == 0, s"Exit status is not zero: $exitStatus" )
   }
 
 }

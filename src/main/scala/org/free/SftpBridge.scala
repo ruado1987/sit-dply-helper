@@ -5,11 +5,11 @@ import org.apache.commons.vfs2._
 import com.jcraft.jsch._
 
 class SftpBridge private ( val vfsManager : FileSystemManager,
-  val connectionUrl : String, val authType : AuthenticationType ) {
+                           val connectionUrl : String, val authType : AuthenticationType ) {
 
   lazy val urlRegex = """^(?:[^\:]+)\:/{2}([^\:]+)\@([a-zA-Z.\-0-9]+)(?:\:([0-9]+))?/(?:\S+)?$""".r
-  lazy val urlRegex(user, host, port) = connectionUrl
-  
+  lazy val urlRegex( user, host, port ) = connectionUrl
+
   lazy val remoteHomeDir = vfsManager.resolveFile( connectionUrl, authType.toFileSystemOptions )
 
   def dir( dirname : String )( f : VirtualFile => Unit ) {
@@ -25,24 +25,22 @@ class SftpBridge private ( val vfsManager : FileSystemManager,
 
     remoteFile.copyFrom( localFile, new FileTypeSelector( FileType.FILE ) )
   }
-  
-  def exec( command: String ) : Int = {
+
+  def exec( command : String ) : Int = {
     val session = authType.authenticate( host, port.toInt )
-    val channel: ChannelExec = session.openChannel("exec").asInstanceOf[ChannelExec]
+    val channel : ChannelExec = session.openChannel( "exec" ).asInstanceOf[ ChannelExec ]
 
     try {
-        channel.setCommand(command)
-        channel.setInputStream(null)
-        val ins = channel.getInputStream
-        channel.connect()
+      channel.setCommand( command )
+      channel.setInputStream( null )
+      channel.connect()
+      // wait until the command execution completed
+      while ( !channel.isClosed() ) {}
 
-        // wait until the command execution completed
-        while (!channel.isClosed()) {}
-
-        return channel.getExitStatus()
+      return channel.getExitStatus()
     } finally {
-        channel.disconnect()
-        session.disconnect()
+      channel.disconnect()
+      session.disconnect()
     }
   }
 }
