@@ -1,3 +1,5 @@
+import scalariform.formatter.preferences._
+
 scalacOptions ++= Seq("-feature", "-language:implicitConversions")
 
 scalaVersion := "2.10.1"
@@ -14,3 +16,11 @@ libraryDependencies += "org.apache.sshd" % "sshd-core" % "0.8.0" % "test"
 
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oDSF")
 
+scalariformSettings
+
+ScalariformKeys.preferences := FormattingPreferences()
+  .setPreference(SpaceInsideBrackets, true)
+  .setPreference(SpaceInsideParentheses, true)
+  .setPreference(AlignParameters, true)
+  .setPreference(CompactStringConcatenation, true)
+  .setPreference(SpaceBeforeColon, true)
