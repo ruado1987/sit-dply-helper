@@ -41,7 +41,7 @@ case class PublicKeyAuthentication( username : String, keyPath : String ) extend
     val fsOps = new FileSystemOptions()
     val builder = SftpFileSystemConfigBuilder.getInstance()
 
-    builder.setStrictHostKeyChecking( fsOps, "no" );
+    builder.setStrictHostKeyChecking( fsOps, "no" )
     builder.setIdentities( fsOps, Array[ File ]( new File( keyPath ) ) )
 
     fsOps

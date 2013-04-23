@@ -14,6 +14,8 @@ libraryDependencies += "org.mockito" % "mockito-all" % "1.9.5" % "test"
 
 libraryDependencies += "org.apache.sshd" % "sshd-core" % "0.8.0" % "test"
 
+libraryDependencies += "org.slf4j" % "slf4j-jdk14" % "1.7.5"
+
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oDSF")
 
 scalariformSettings
