@@ -72,7 +72,7 @@ abstract class SftpBridgeSuite extends fixture.FunSuite with MockitoSugar {
 }
 
 case class DefaultPortSuite() extends SftpBridgeSuite {
-  override val conUrl = "sftp://user@server:22/"
+  override val conUrl = "sftp://user@server/"
   override val port = 22
 }
 case class SpecifiedPortSuite() extends SftpBridgeSuite {
