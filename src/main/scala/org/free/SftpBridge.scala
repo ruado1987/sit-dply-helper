@@ -5,7 +5,8 @@ import org.apache.commons.vfs2._
 import com.jcraft.jsch._
 
 class SftpBridge private ( val vfsManager : FileSystemManager,
-                           val connectionUrl : String, val authType : AuthenticationType ) {
+                           val connectionUrl : String,
+                           val authType : AuthenticationType ) {
 
   lazy val urlRegex = """^(?:[^\:]+)\:/{2}([^\:]+)\@([a-zA-Z.\-0-9]+)(?:\:([0-9]+))?/(?:\S+)?$""".r
   lazy val urlRegex( user, host, port ) = connectionUrl
@@ -20,14 +21,14 @@ class SftpBridge private ( val vfsManager : FileSystemManager,
   }
 
   def push( localPath : String, remotePath : String ) {
-    val localFile = vfsManager.resolveFile( localPath );
+    val localFile = vfsManager.resolveFile( localPath )
     val remoteFile = remoteHomeDir.resolveFile( remotePath )
 
     remoteFile.copyFrom( localFile, new FileTypeSelector( FileType.FILE ) )
   }
 
   def exec( command : String ) : Int = {
-    val session = authType.authenticate( host, port.toInt )
+    val session = authType.authenticate( host, if ( port == null ) 22 else port.toInt )
     val channel : ChannelExec = session.openChannel( "exec" ).asInstanceOf[ ChannelExec ]
 
     try {

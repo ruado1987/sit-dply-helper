@@ -1,6 +1,6 @@
 import scalariform.formatter.preferences._
 
-scalacOptions ++= Seq("-feature", "-language:implicitConversions")
+scalacOptions ++= Seq("-feature", "-language:implicitConversions", "-deprecation")
 
 scalaVersion := "2.10.1"
 
