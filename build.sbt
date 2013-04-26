@@ -4,6 +4,12 @@ scalacOptions ++= Seq("-feature", "-language:implicitConversions", "-deprecation
 
 scalaVersion := "2.10.1"
 
+libraryDependencies += "com.github.scala-incubator.io" %% "scala-io-core" % "0.4.2"
+
+libraryDependencies += "com.github.scala-incubator.io" %% "scala-io-file" % "0.4.2"
+
+libraryDependencies += "net.noerd" %% "prequel" % "0.3.8"
+
 libraryDependencies += "org.apache.commons" % "commons-vfs2" % "2.0"
 
 libraryDependencies += "com.jcraft" % "jsch" % "0.1.49"
