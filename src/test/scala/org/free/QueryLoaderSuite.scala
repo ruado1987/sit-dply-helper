@@ -23,13 +23,13 @@ class QueryLoaderSuite extends fixture.FunSuite {
     val qs = List(
       "select * from a where b = ?;",
       "select * from a where c = ?;",
-      "select * from a where d in (?,?)" )
+      "select * from a where d in (?,?);" )
     qs.foreach { q => output.write( q ); output.write( "\n" ) }
 
     val queries =
       QueryLoader.load( new File( "queries.txt" ) )
 
     assert( queries.size == 3, "number of queries is not 3 but "+queries.size )
-    //assert( queries.map( _.asText ).diff( qs ) == Nil )
+    assert( queries.map( _.asText ) == queries.map( _.asText ) )
   }
 }
