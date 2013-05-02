@@ -4,6 +4,7 @@ import org.scalatest._
 
 import net.noerd.prequel._
 import SQLFormatterImplicits._
+import java.io.{ OutputStream, FileOutputStream }
 
 class QuerySuite extends FunSuite with BeforeAndAfterAll with BeforeAndAfter {
 
@@ -55,6 +56,12 @@ class QuerySuite extends FunSuite with BeforeAndAfterAll with BeforeAndAfter {
     }
   }
 
+  test( "query columns" ) {
+    val q = Query( """select veh_sys_num, veh_num,
+                        body_cd, class_cd from wr_veh_mas""" )
+    assert( q.columns.toList == List( "veh_sys_num", "veh_num", "body_cd", "class_cd" ) )
+  }
+
   test( "execute standard query" ) {
     val results =
       Query( """select veh_sys_num, veh_num,
@@ -88,5 +95,40 @@ class QuerySuite extends FunSuite with BeforeAndAfterAll with BeforeAndAfter {
       row( 8 ).padTo( 10, ' ' ) +
       row( 9 ).padTo( 5, ' ' ) +
       row( 10 ).padTo( 2, ' ' ) )
+  }
+
+  test( "convert simple query result to excel sheet" ) {
+    val query = Query( """select veh_sys_num, veh_num,
+                        body_cd, class_cd from wr_veh_mas""" )
+    val results = query.execute( config )
+    val excelConverter =
+      new QueryResultToExcelConverter( query, results )
+
+    withOutputStream( "test.xls" ) { out =>
+      excelConverter.save( out )
+    }
+  }
+
+  test( "convert extended query result to excel sheet" ) {
+    val query = Query( """select veh_sys_num, veh_num, body_cd,
+                        class_cd, temp_start_dt, perm_out_dt,
+                        acc_sys_num, seller_id, buyer_id,
+                        buyer_type, dealer from wr_veh_mas""" )
+    val results = query.execute( config )
+    val excelConverter =
+      new QueryResultToExcelConverter( query, results )
+
+    withOutputStream( "test2.xls" ) { out =>
+      excelConverter.save( out )
+    }
+  }
+
+  def withOutputStream( fileName : String )( f : OutputStream => Unit ) {
+    val fout = new FileOutputStream( fileName )
+    try {
+      f( fout )
+    } finally {
+      fout.close()
+    }
   }
 }

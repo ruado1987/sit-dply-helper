@@ -16,7 +16,7 @@ object QueryLoader {
     val rsrc = Resource.fromFile( file )
     val lines = rsrc.lines( terminator = Custom( ";" ), includeTerminator = true )
 
-    Queries( lines.view.filter( _.contains( "select" ) ) map ( line => SimpleQuery( line.trim() ) ) toArray )
+    Queries( lines.view.filter( _.contains( "select" ) ) map ( line => Query( line.trim() ) ) toArray )
   }
 }
 

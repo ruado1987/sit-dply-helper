@@ -1,9 +1,13 @@
 package org.free
 
 import java.util.{ Date }
+import org.apache.poi.hssf.usermodel._
 
 trait QueryResult {
   def mkString : String
+  def populateRow( excelRow : HSSFRow ) {
+
+  }
 }
 
 class StandardVehicleQueryResult(
@@ -17,6 +21,13 @@ class StandardVehicleQueryResult(
       vehicleNum.padTo( 20, ' ' ) +
       vehicleBodyCd.padTo( 5, ' ' ) +
       vehicleClassCd.padTo( 5, ' ' )
+  }
+
+  override def populateRow( excelRow : HSSFRow ) {
+    excelRow.createCell( 0 ).setCellValue( vehicleSysNum )
+    excelRow.createCell( 1 ).setCellValue( vehicleNum )
+    excelRow.createCell( 2 ).setCellValue( vehicleBodyCd )
+    excelRow.createCell( 3 ).setCellValue( vehicleClassCd )
   }
 }
 
@@ -46,6 +57,17 @@ class ExtendedVehicleQueryResult(
       buyerType.padTo( 5, ' ' ) +
       dealer.padTo( 2, ' ' )
   }
+
+  override def populateRow( excelRow : HSSFRow ) {
+    super.populateRow( excelRow )
+    excelRow.createCell( 4 ).setCellValue( format( tempStartDt ) )
+    excelRow.createCell( 5 ).setCellValue( format( permoutDt ) )
+    excelRow.createCell( 6 ).setCellValue( accSysNum )
+    excelRow.createCell( 7 ).setCellValue( sellerId )
+    excelRow.createCell( 8 ).setCellValue( buyerId )
+    excelRow.createCell( 9 ).setCellValue( buyerType )
+    excelRow.createCell( 10 ).setCellValue( dealer )
+  }
 }
 
 trait DateFormatter {
@@ -58,4 +80,10 @@ trait DateFormatter {
     val df = new SimpleDateFormat( pattern )
     df format date
   }
+}
+
+class QueryResultToExcelConverter( query : Query, results : Seq[ QueryResult ] ) extends ExcelSheetLike {
+
+  def header = query.columns
+  def data = results
 }

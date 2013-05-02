@@ -14,6 +14,8 @@ libraryDependencies += "org.apache.commons" % "commons-vfs2" % "2.0"
 
 libraryDependencies += "com.jcraft" % "jsch" % "0.1.49"
 
+libraryDependencies += "org.apache.poi" % "poi" % "3.9"
+
 libraryDependencies += "org.scalatest" % "scalatest_2.10" % "1.9.1" % "test"
 
 libraryDependencies += "org.mockito" % "mockito-all" % "1.9.5" % "test"

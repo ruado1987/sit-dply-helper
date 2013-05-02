@@ -21,9 +21,9 @@ class QueryLoaderSuite extends fixture.FunSuite {
 
   test( "load file" ) { output : Output =>
     val qs = List(
-      "select * from a where b = ?;",
-      "select * from a where c = ?;",
-      "select * from a where d in (?,?);" )
+      "select e, f, g, h from a where b = ?;",
+      "select e, f, g, h from a where c = ?;",
+      "select e, f, g, h from a where d in (?,?);" )
     qs.foreach { q =>
       output.write( q )
       output.write( "\n" )
