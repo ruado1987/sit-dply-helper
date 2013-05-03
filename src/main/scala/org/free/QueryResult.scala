@@ -68,7 +68,7 @@ class ExtendedVehicleQueryResult(
     excelRow.createCell( 10 ).setCellValue( dealer )
   }
 }
-
+ 
 trait DateFormatter {
 
   import org.joda.time.format.{ DateTimeFormatter, DateTimeFormat }

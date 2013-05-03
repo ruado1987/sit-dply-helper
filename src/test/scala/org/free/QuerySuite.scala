@@ -22,13 +22,15 @@ class QuerySuite extends FunSuite with BeforeAndAfterAll with BeforeAndAfter wit
               "2013-01-12", "2013-03-20",
               "456", "S777", "S888", "A", "N" )
 
-  val sQuery = """--@favorite vehicles@select veh_sys_num, veh_num,
-                        body_cd, class_cd from wr_veh_mas"""
+  val sQuery = """--@favorite vehicles@
+                        select veh_sys_num, veh_num,
+                                body_cd, class_cd from wr_veh_mas"""
 
-  val eQuery = """--@favorite vehicles@select veh_sys_num, veh_num, body_cd,
-                        class_cd, temp_start_dt, perm_out_dt,
-                        acc_sys_num, seller_id, buyer_id,
-                        buyer_type, dealer from wr_veh_mas"""
+  val eQuery = """--@favorite vehicles@
+                        select veh_sys_num, veh_num, body_cd,
+                                class_cd, temp_start_dt, perm_out_dt,
+                                acc_sys_num, seller_id, buyer_id,
+                                buyer_type, dealer from wr_veh_mas"""
 
   override def beforeAll {
     config.transaction { tx =>
