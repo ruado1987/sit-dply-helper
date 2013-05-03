@@ -1,12 +1,13 @@
 package org.free
 
 import org.scalatest._
+import matchers._
 
 import net.noerd.prequel._
 import SQLFormatterImplicits._
 import java.io.{ OutputStream, FileOutputStream }
 
-class QuerySuite extends FunSuite with BeforeAndAfterAll with BeforeAndAfter {
+class QuerySuite extends FunSuite with BeforeAndAfterAll with BeforeAndAfter with ShouldMatchers {
 
   implicit def stringArray2Formattables( strings : Array[ String ] ) = {
     for ( string <- strings ) yield string2Formattable( string )
@@ -59,7 +60,7 @@ class QuerySuite extends FunSuite with BeforeAndAfterAll with BeforeAndAfter {
   test( "query columns" ) {
     val q = Query( """select veh_sys_num, veh_num,
                         body_cd, class_cd from wr_veh_mas""" )
-    assert( q.columns.toList == List( "veh_sys_num", "veh_num", "body_cd", "class_cd" ) )
+    q.columns should equal( Array( "veh_sys_num", "veh_num", "body_cd", "class_cd" ) )
   }
 
   test( "execute standard query" ) {
@@ -68,8 +69,7 @@ class QuerySuite extends FunSuite with BeforeAndAfterAll with BeforeAndAfter {
                         body_cd, class_cd from wr_veh_mas""" )
         .execute( config )
 
-    assert( results.head.mkString ==
-      row( 0 ).padTo( 20, ' ' ) +
+    results.head.mkString should equal( row( 0 ).padTo( 20, ' ' ) +
       row( 1 ).padTo( 20, ' ' ) +
       row( 2 ).padTo( 5, ' ' ) +
       row( 3 ).padTo( 5, ' ' ) )
@@ -83,8 +83,7 @@ class QuerySuite extends FunSuite with BeforeAndAfterAll with BeforeAndAfter {
                         buyer_type, dealer from wr_veh_mas""" )
         .execute( config )
 
-    assert( results.head.mkString ==
-      row( 0 ).padTo( 20, ' ' ) +
+    results.head.mkString should equal (row( 0 ).padTo( 20, ' ' ) +
       row( 1 ).padTo( 20, ' ' ) +
       row( 2 ).padTo( 5, ' ' ) +
       row( 3 ).padTo( 5, ' ' ) +

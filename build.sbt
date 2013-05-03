@@ -28,7 +28,7 @@ libraryDependencies += "org.slf4j" % "slf4j-jdk14" % "1.7.5"
 
 testOptions in Test += Tests.Argument(TestFrameworks.ScalaTest, "-oDSF")
 
-scalariformSettings
+defaultScalariformSettings
 
 ScalariformKeys.preferences := FormattingPreferences()
   .setPreference(SpaceInsideBrackets, true)

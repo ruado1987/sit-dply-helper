@@ -1,13 +1,12 @@
 package org.free
 
 import java.util.{ Date }
-import org.apache.poi.hssf.usermodel._
+
+import org.apache.poi.ss.usermodel.Row
 
 trait QueryResult {
   def mkString : String
-  def populateRow( excelRow : HSSFRow ) {
-
-  }
+  def populateRow( excelRow : Row )
 }
 
 class StandardVehicleQueryResult(
@@ -23,7 +22,7 @@ class StandardVehicleQueryResult(
       vehicleClassCd.padTo( 5, ' ' )
   }
 
-  override def populateRow( excelRow : HSSFRow ) {
+  override def populateRow( excelRow : Row ) {
     excelRow.createCell( 0 ).setCellValue( vehicleSysNum )
     excelRow.createCell( 1 ).setCellValue( vehicleNum )
     excelRow.createCell( 2 ).setCellValue( vehicleBodyCd )
@@ -58,7 +57,7 @@ class ExtendedVehicleQueryResult(
       dealer.padTo( 2, ' ' )
   }
 
-  override def populateRow( excelRow : HSSFRow ) {
+  override def populateRow( excelRow : Row ) {
     super.populateRow( excelRow )
     excelRow.createCell( 4 ).setCellValue( format( tempStartDt ) )
     excelRow.createCell( 5 ).setCellValue( format( permoutDt ) )
@@ -72,18 +71,28 @@ class ExtendedVehicleQueryResult(
 
 trait DateFormatter {
 
-  import java.text.SimpleDateFormat
+  import org.joda.time.format.{DateTimeFormatter,DateTimeFormat}
 
   val pattern : String
+  lazy val formatter = DateTimeFormat.forPattern(pattern)
 
   def format( date : Date ) = {
-    val df = new SimpleDateFormat( pattern )
-    df format date
+    formatter print date.getTime
   }
 }
 
 class QueryResultToExcelConverter( query : Query, results : Seq[ QueryResult ] ) extends ExcelSheetLike {
 
+  import org.apache.poi.hssf.usermodel._
+  import java.io.{OutputStream}
+
   def header = query.columns
   def data = results
+
+  def save( stream : OutputStream ) {
+    val wb = new HSSFWorkbook()
+    addTo(wb)
+
+    wb.write( stream )
+  }
 }
