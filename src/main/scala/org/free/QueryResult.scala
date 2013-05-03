@@ -88,7 +88,7 @@ class QueryResultToExcelConverter( query : Query, results : Seq[ QueryResult ] )
 
   def header = query.columns
   def data = results
-  
+
   val sheetName = query.name
 
   def save( stream : OutputStream ) {
