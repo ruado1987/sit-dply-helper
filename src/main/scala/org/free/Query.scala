@@ -5,7 +5,11 @@ import ResultSetRowImplicits._
 
 abstract class Query( text : String, val columns : Array[ String ] ) {
 
-  def asText = text
+  private val regex = """(?s)[^@]*@([^@]+)@(.+)""".r
+  private val regex(qname, query) = text
+
+  def asText = query
+  def name : String = qname
 
   def execute( database : DatabaseConfig ) : Seq[ QueryResult ] = {
     database.transaction { tx =>

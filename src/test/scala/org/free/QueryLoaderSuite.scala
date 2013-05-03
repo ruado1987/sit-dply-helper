@@ -3,10 +3,11 @@ package org.free
 import java.io.{ File }
 
 import org.scalatest._
+import matchers._
 import scalax.io._
 import scalax.file._
 
-class QueryLoaderSuite extends fixture.FunSuite {
+class QueryLoaderSuite extends fixture.FunSuite with ShouldMatchers {
 
   type FixtureParam = Output
 
@@ -20,10 +21,11 @@ class QueryLoaderSuite extends fixture.FunSuite {
   }
 
   test( "load file" ) { output : Output =>
+    val prefix = "--@test@"
     val qs = List(
-      "select e, f, g, h from a where b = ?;",
-      "select e, f, g, h from a where c = ?;",
-      "select e, f, g, h from a where d in (?,?);" )
+      s"${prefix}select e, f, g, h from a where b = ?;",
+      s"${prefix}select e, f, g, h from a where c = ?;",
+      s"${prefix}select e, f, g, h from a where d in (?,?);" )
     qs.foreach { q =>
       output.write( q )
       output.write( "\n" )
@@ -32,6 +34,6 @@ class QueryLoaderSuite extends fixture.FunSuite {
     val queries =
       QueryLoader.load( new File( "queries.txt" ) )
 
-    assert( queries.map( _.asText ) == qs )
+    queries.map( _.asText ) should equal (qs.map(_.stripPrefix(prefix)))
   }
 }

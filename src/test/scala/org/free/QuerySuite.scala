@@ -1,25 +1,34 @@
 package org.free
 
 import org.scalatest._
+import matchers._
 
 import net.noerd.prequel._
 import SQLFormatterImplicits._
 import java.io.{ OutputStream, FileOutputStream }
 
-class QuerySuite extends FunSuite with BeforeAndAfterAll with BeforeAndAfter {
+class QuerySuite extends FunSuite with BeforeAndAfterAll with BeforeAndAfter with ShouldMatchers {
 
   implicit def stringArray2Formattables( strings : Array[ String ] ) = {
     for ( string <- strings ) yield string2Formattable( string )
   }
 
   val config = DatabaseConfig(
-    driver = "org.h2.Driver",
-    jdbcURL = "jdbc:h2:mem:testDB" )
+                driver = "org.h2.Driver",
+                jdbcURL = "jdbc:h2:mem:testDB" )
 
   val row = Array(
-    "123", "s1234", "10", "E",
-    "2013-01-12", "2013-03-20",
-    "456", "S777", "S888", "A", "N" )
+              "123", "s1234", "10", "E",
+              "2013-01-12", "2013-03-20",
+              "456", "S777", "S888", "A", "N" )
+
+  val sQuery = """--@favorite vehicles@select veh_sys_num, veh_num,
+                        body_cd, class_cd from wr_veh_mas"""
+
+  val eQuery = """--@favorite vehicles@select veh_sys_num, veh_num, body_cd,
+                        class_cd, temp_start_dt, perm_out_dt,
+                        acc_sys_num, seller_id, buyer_id,
+                        buyer_type, dealer from wr_veh_mas"""
 
   override def beforeAll {
     config.transaction { tx =>
@@ -57,34 +66,29 @@ class QuerySuite extends FunSuite with BeforeAndAfterAll with BeforeAndAfter {
   }
 
   test( "query columns" ) {
-    val q = Query( """select veh_sys_num, veh_num,
-                        body_cd, class_cd from wr_veh_mas""" )
-    assert( q.columns.toList == List( "veh_sys_num", "veh_num", "body_cd", "class_cd" ) )
+    val q = Query( sQuery )
+    q.columns should equal( Array( "veh_sys_num", "veh_num", "body_cd", "class_cd" ) )
+  }
+  
+  test("query name") {
+    val q = Query( sQuery )
+    q.name should equal ("favorite vehicles")
   }
 
   test( "execute standard query" ) {
-    val results =
-      Query( """select veh_sys_num, veh_num,
-                        body_cd, class_cd from wr_veh_mas""" )
+    val results = Query( sQuery )
         .execute( config )
 
-    assert( results.head.mkString ==
-      row( 0 ).padTo( 20, ' ' ) +
+    results.head.mkString should equal( row( 0 ).padTo( 20, ' ' ) +
       row( 1 ).padTo( 20, ' ' ) +
       row( 2 ).padTo( 5, ' ' ) +
       row( 3 ).padTo( 5, ' ' ) )
   }
 
   test( "execute extended query" ) {
-    val results =
-      Query( """select veh_sys_num, veh_num, body_cd,
-                        class_cd, temp_start_dt, perm_out_dt,
-                        acc_sys_num, seller_id, buyer_id,
-                        buyer_type, dealer from wr_veh_mas""" )
-        .execute( config )
+    val results = Query( eQuery ).execute( config )
 
-    assert( results.head.mkString ==
-      row( 0 ).padTo( 20, ' ' ) +
+    results.head.mkString should equal (row( 0 ).padTo( 20, ' ' ) +
       row( 1 ).padTo( 20, ' ' ) +
       row( 2 ).padTo( 5, ' ' ) +
       row( 3 ).padTo( 5, ' ' ) +
@@ -98,8 +102,7 @@ class QuerySuite extends FunSuite with BeforeAndAfterAll with BeforeAndAfter {
   }
 
   test( "convert simple query result to excel sheet" ) {
-    val query = Query( """select veh_sys_num, veh_num,
-                        body_cd, class_cd from wr_veh_mas""" )
+    val query = Query( sQuery )
     val results = query.execute( config )
     val excelConverter =
       new QueryResultToExcelConverter( query, results )
@@ -110,10 +113,7 @@ class QuerySuite extends FunSuite with BeforeAndAfterAll with BeforeAndAfter {
   }
 
   test( "convert extended query result to excel sheet" ) {
-    val query = Query( """select veh_sys_num, veh_num, body_cd,
-                        class_cd, temp_start_dt, perm_out_dt,
-                        acc_sys_num, seller_id, buyer_id,
-                        buyer_type, dealer from wr_veh_mas""" )
+    val query = Query( eQuery )
     val results = query.execute( config )
     val excelConverter =
       new QueryResultToExcelConverter( query, results )
