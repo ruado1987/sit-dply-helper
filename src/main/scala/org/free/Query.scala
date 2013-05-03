@@ -6,7 +6,7 @@ import ResultSetRowImplicits._
 abstract class Query( text : String, val columns : Array[ String ] ) {
 
   private val regex = """(?s)[^@]*@([^@]+)@(.+)""".r
-  private val regex(qname, query) = text
+  private val regex( qname, query ) = text
 
   def asText = query
   def name : String = qname

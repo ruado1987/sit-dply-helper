@@ -73,6 +73,7 @@ class QuerySuite extends FunSuite with BeforeAndAfterAll with BeforeAndAfter wit
   test("query name") {
     val q = Query( sQuery )
     q.name should equal ("favorite vehicles")
+    q.columns should equal( Array( "veh_sys_num", "veh_num", "body_cd", "class_cd" ) )
   }
 
   test( "execute standard query" ) {

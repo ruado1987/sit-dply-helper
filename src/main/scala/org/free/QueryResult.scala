@@ -71,10 +71,10 @@ class ExtendedVehicleQueryResult(
 
 trait DateFormatter {
 
-  import org.joda.time.format.{DateTimeFormatter,DateTimeFormat}
+  import org.joda.time.format.{ DateTimeFormatter, DateTimeFormat }
 
   val pattern : String
-  lazy val formatter = DateTimeFormat.forPattern(pattern)
+  lazy val formatter = DateTimeFormat.forPattern( pattern )
 
   def format( date : Date ) = {
     formatter print date.getTime
@@ -84,16 +84,16 @@ trait DateFormatter {
 class QueryResultToExcelConverter( query : Query, results : Seq[ QueryResult ] ) extends ExcelSheetLike {
 
   import org.apache.poi.hssf.usermodel._
-  import java.io.{OutputStream}
+  import java.io.{ OutputStream }
 
   def header = query.columns
   def data = results
-  
+
   val sheetName = query.name
 
   def save( stream : OutputStream ) {
     val wb = new HSSFWorkbook()
-    addTo(wb)
+    addTo( wb )
 
     wb.write( stream )
   }
