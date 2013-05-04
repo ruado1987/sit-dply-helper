@@ -19,19 +19,9 @@ trait ExcelSheetLike {
 
   def addTo( wb : Workbook ) {
     val sheet = wb.createSheet( sheetName )
-    val headerRow = sheet.createRow( 0 )
-    val style = createHeaderStyle( wb )
 
-    for ( ( h, idx ) <- header.zipWithIndex ) {
-      val cell = headerRow.createCell( idx )
-      cell.setCellValue( h.toUpperCase )
-      cell.setCellStyle( style )
-      sheet.autoSizeColumn( idx )
-    }
-
-    for ( ( qr, idx ) <- data.zipWithIndex ) {
-      qr.populateRow( sheet.createRow( idx + 1 ) )
-    }
+    addHeaderTo( sheet, createHeaderStyle( wb ) )
+    addBodyTo( sheet )
   }
 
   private def createHeaderStyle( wb : Workbook ) : CellStyle = {
@@ -53,4 +43,22 @@ trait ExcelSheetLike {
 
     style
   }
+
+  private def addHeaderTo( sheet : Sheet, style : CellStyle ) {
+    val headerRow = sheet.createRow( 0 )
+    for ( ( h, idx ) <- header.zipWithIndex ) {
+      val cell = headerRow.createCell( idx )
+      cell.setCellValue( h.toUpperCase )
+      cell.setCellStyle( style )
+
+      sheet.autoSizeColumn( idx )
+    }
+  }
+
+  private def addBodyTo( sheet : Sheet ) {
+    for ( ( qr, idx ) <- data.zipWithIndex ) {
+      qr.populateRow( sheet.createRow( idx + 1 ) )
+    }
+  }
+
 }

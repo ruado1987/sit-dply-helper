@@ -107,8 +107,9 @@ class QuerySuite extends FunSuite with BeforeAndAfterAll with BeforeAndAfter wit
   test( "convert simple query result to excel sheet" ) {
     val query = Query( sQuery )
     val results = query.execute( config )
-    val excelConverter =
-      new QueryResultToExcelConverter( query, results )
+    val sheet = new QueryResultToExcelSheet(query, results)
+    val excelConverter = new QueryResultToExcelConverter
+    excelConverter.addSheet(sheet)
 
     withOutputStream( "test.xls" ) { out =>
       excelConverter.save( out )
@@ -118,8 +119,9 @@ class QuerySuite extends FunSuite with BeforeAndAfterAll with BeforeAndAfter wit
   test( "convert extended query result to excel sheet" ) {
     val query = Query( eQuery )
     val results = query.execute( config )
-    val excelConverter =
-      new QueryResultToExcelConverter( query, results )
+    val sheet = new QueryResultToExcelSheet(query, results)
+    val excelConverter = new QueryResultToExcelConverter
+    excelConverter.addSheet(sheet)
 
     withOutputStream( "test2.xls" ) { out =>
       excelConverter.save( out )

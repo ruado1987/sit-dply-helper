@@ -4,17 +4,19 @@ import java.io.{ File }
 
 import language.postfixOps
 import collection._
-import collection.generic._
-import collection.mutable.{ Builder, ArrayBuffer }
+import generic._
+import mutable.{ Builder, ArrayBuffer }
 
 import scalax.io._
 import Line.Terminators.Custom
 
 object QueryLoader {
 
+  private val semicolon = Custom( ";" )
+
   def load( file : File ) : Queries = {
     val rsrc = Resource.fromFile( file )
-    val lines = rsrc.lines( terminator = Custom( ";" ), includeTerminator = true )
+    val lines = rsrc.lines( terminator = semicolon, includeTerminator = true )
 
     Queries( lines.view.filter( _.contains( "select" ) ) map ( line => Query( line.trim() ) ) toArray )
   }

@@ -10,38 +10,38 @@ trait QueryResult {
 }
 
 class StandardVehicleQueryResult(
-  val vehicleSysNum : String,
-  val vehicleNum : String,
-  val vehicleBodyCd : String,
-  val vehicleClassCd : String ) extends QueryResult {
+  sysNum : String,
+  num : String,
+  bodyCd : String,
+  classCd : String ) extends QueryResult {
 
   def mkString : String = {
-    vehicleSysNum.padTo( 20, ' ' ) +
-      vehicleNum.padTo( 20, ' ' ) +
-      vehicleBodyCd.padTo( 5, ' ' ) +
-      vehicleClassCd.padTo( 5, ' ' )
+    sysNum.padTo( 20, ' ' ) +
+      num.padTo( 20, ' ' ) +
+      bodyCd.padTo( 5, ' ' ) +
+      classCd.padTo( 5, ' ' )
   }
 
   override def populateRow( excelRow : Row ) {
-    excelRow.createCell( 0 ).setCellValue( vehicleSysNum )
-    excelRow.createCell( 1 ).setCellValue( vehicleNum )
-    excelRow.createCell( 2 ).setCellValue( vehicleBodyCd )
-    excelRow.createCell( 3 ).setCellValue( vehicleClassCd )
+    excelRow.createCell( 0 ).setCellValue( sysNum )
+    excelRow.createCell( 1 ).setCellValue( num )
+    excelRow.createCell( 2 ).setCellValue( bodyCd )
+    excelRow.createCell( 3 ).setCellValue( classCd )
   }
 }
 
 class ExtendedVehicleQueryResult(
-  val sysNum : String,
-  val num : String,
-  val bodyCd : String,
-  val classCd : String,
-  val tempStartDt : Date,
-  val permoutDt : Date,
-  val accSysNum : String,
-  val sellerId : String,
-  val buyerId : String,
-  val buyerType : String,
-  val dealer : String ) extends StandardVehicleQueryResult( sysNum, num, bodyCd, classCd )
+  sysNum : String,
+  num : String,
+  bodyCd : String,
+  classCd : String,
+  tempStartDt : Date,
+  permoutDt : Date,
+  accSysNum : String,
+  sellerId : String,
+  buyerId : String,
+  buyerType : String,
+  dealer : String ) extends StandardVehicleQueryResult( sysNum, num, bodyCd, classCd )
   with DateFormatter {
 
   override val pattern = "yyyy-MM-dd"
@@ -68,10 +68,10 @@ class ExtendedVehicleQueryResult(
     excelRow.createCell( 10 ).setCellValue( dealer )
   }
 }
- 
+
 trait DateFormatter {
 
-  import org.joda.time.format.{ DateTimeFormatter, DateTimeFormat }
+  import org.joda.time.format.{ DateTimeFormat }
 
   val pattern : String
   lazy val formatter = DateTimeFormat.forPattern( pattern )
@@ -81,20 +81,15 @@ trait DateFormatter {
   }
 }
 
-class QueryResultToExcelConverter( query : Query, results : Seq[ QueryResult ] ) extends ExcelSheetLike {
-
+class QueryResultToExcelSheet(query : Query, results : Seq[ QueryResult ]) extends ExcelSheetLike {
   import org.apache.poi.hssf.usermodel._
   import java.io.{ OutputStream }
 
   def header = query.columns
   def data = results
-
   val sheetName = query.name
+}
 
-  def save( stream : OutputStream ) {
-    val wb = new HSSFWorkbook()
-    addTo( wb )
-
-    wb.write( stream )
-  }
+class QueryResultToExcelConverter extends WorkbookLike[QueryResultToExcelSheet] with XlsWorkBookProvider {
+	
 }
