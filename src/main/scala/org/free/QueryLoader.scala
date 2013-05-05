@@ -10,11 +10,13 @@ import mutable.{ Builder, ArrayBuffer }
 import scalax.io._
 import Line.Terminators.Custom
 
+import net.noerd.prequel._
+
 object QueryLoader {
 
   private val semicolon = Custom( ";" )
 
-  def load( file : File ) : Queries = {
+  def load( file : File )(implicit databaseProvider: DatabaseProvider) : Queries = {
     val rsrc = Resource.fromFile( file )
     val lines = rsrc.lines( terminator = semicolon, includeTerminator = true )
 
@@ -24,16 +26,28 @@ object QueryLoader {
 
 class Queries private ( qs : Query* )
   extends Traversable[ Query ]
-  with TraversableLike[ Query, Queries ] {
+  with TraversableLike[ Query, Queries ] 
+  with ExecutableQuery
+  with WorkbookLike[Query] 
+  with XlsWorkBookProvider {
 
   def foreach[ U ]( f : Query => U ) = qs.toSeq.foreach( f )
 
   override def newBuilder : Builder[ Query, Queries ] = Queries.newBuilder
+  
+  def execute(implicit database: DatabaseConfig) = {    
+    (for (query <- this) yield query.execute(database)).view.flatMap(_.toList).toSeq 
+  }
 }
 
 object Queries {
 
-  def apply( qs : Array[ Query ] ) = new Queries( qs : _* )
+  def apply( qs : Array[ Query ] ) = {
+    val queries = new Queries( qs : _* )
+    for(q <- qs) queries.addSheet(q)
+    
+    queries
+  }
 
   def newBuilder : Builder[ Query, Queries ] =
     new ArrayBuffer[ Query ] mapResult ( x => new Queries( x : _* ) )

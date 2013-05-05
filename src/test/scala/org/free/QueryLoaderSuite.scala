@@ -10,6 +10,11 @@ import scalax.file._
 class QueryLoaderSuite extends fixture.FunSuite with ShouldMatchers {
 
   type FixtureParam = Output
+  
+  implicit val fakeDatabaseProvider = new DatabaseProvider {
+    
+    def database = null
+  } 
 
   override def withFixture( test : OneArgTest ) {
     val filename = "queries.txt"
@@ -31,8 +36,7 @@ class QueryLoaderSuite extends fixture.FunSuite with ShouldMatchers {
       output.write( "\n" )
     }
 
-    val queries =
-      QueryLoader.load( new File( "queries.txt" ) )
+    val queries = QueryLoader.load( new File( "queries.txt" ) )
 
     queries.map( _.asText ) should equal (qs.map(_.stripPrefix(prefix)))
   }

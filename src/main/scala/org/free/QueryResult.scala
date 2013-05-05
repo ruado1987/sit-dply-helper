@@ -68,28 +68,3 @@ class ExtendedVehicleQueryResult(
     excelRow.createCell( 10 ).setCellValue( dealer )
   }
 }
-
-trait DateFormatter {
-
-  import org.joda.time.format.{ DateTimeFormat }
-
-  val pattern : String
-  lazy val formatter = DateTimeFormat.forPattern( pattern )
-
-  def format( date : Date ) = {
-    formatter print date.getTime
-  }
-}
-
-class QueryResultToExcelSheet(query : Query, results : Seq[ QueryResult ]) extends ExcelSheetLike {
-  import org.apache.poi.hssf.usermodel._
-  import java.io.{ OutputStream }
-
-  def header = query.columns
-  def data = results
-  val sheetName = query.name
-}
-
-class QueryResultToExcelConverter extends WorkbookLike[QueryResultToExcelSheet] with XlsWorkBookProvider {
-	
-}

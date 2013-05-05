@@ -1,8 +1,18 @@
 package org.free
 
-import org.apache.commons.vfs2._
-import org.apache.commons.vfs2.auth.StaticUserAuthenticator
-import org.apache.commons.vfs2.impl.DefaultFileSystemConfigBuilder
+import java.util.{ Date }
 
 object `package` {
+
+  trait DateFormatter {
+
+    import org.joda.time.format.{ DateTimeFormat }
+
+    val pattern : String
+    lazy val formatter = DateTimeFormat.forPattern( pattern )
+
+    def format( date : Date ) = {
+      formatter print date.getTime
+    }
+  }
 }

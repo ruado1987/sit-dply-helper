@@ -13,9 +13,14 @@ class QuerySuite extends FunSuite with BeforeAndAfterAll with BeforeAndAfter wit
     for ( string <- strings ) yield string2Formattable( string )
   }
 
-  val config = DatabaseConfig(
+  implicit def config = DatabaseConfig(
                 driver = "org.h2.Driver",
                 jdbcURL = "jdbc:h2:mem:testDB" )
+                
+  implicit val h2databaseProvider = new DatabaseProvider {
+    
+    def database = config
+  }           
 
   val row = Array(
               "123", "s1234", "10", "E",
@@ -79,8 +84,7 @@ class QuerySuite extends FunSuite with BeforeAndAfterAll with BeforeAndAfter wit
   }
 
   test( "execute standard query" ) {
-    val results = Query( sQuery )
-        .execute( config )
+    val results = Query( sQuery ).execute
 
     results.head.mkString should equal( row( 0 ).padTo( 20, ' ' ) +
       row( 1 ).padTo( 20, ' ' ) +
@@ -89,7 +93,7 @@ class QuerySuite extends FunSuite with BeforeAndAfterAll with BeforeAndAfter wit
   }
 
   test( "execute extended query" ) {
-    val results = Query( eQuery ).execute( config )
+    val results = Query( eQuery ).execute
 
     results.head.mkString should equal (row( 0 ).padTo( 20, ' ' ) +
       row( 1 ).padTo( 20, ' ' ) +
@@ -105,26 +109,18 @@ class QuerySuite extends FunSuite with BeforeAndAfterAll with BeforeAndAfter wit
   }
 
   test( "convert simple query result to excel sheet" ) {
-    val query = Query( sQuery )
-    val results = query.execute( config )
-    val sheet = new QueryResultToExcelSheet(query, results)
-    val excelConverter = new QueryResultToExcelConverter
-    excelConverter.addSheet(sheet)
+    val queries = Queries( Array(Query( sQuery )) )
 
     withOutputStream( "test.xls" ) { out =>
-      excelConverter.save( out )
+      queries.save( out )
     }
   }
 
   test( "convert extended query result to excel sheet" ) {
-    val query = Query( eQuery )
-    val results = query.execute( config )
-    val sheet = new QueryResultToExcelSheet(query, results)
-    val excelConverter = new QueryResultToExcelConverter
-    excelConverter.addSheet(sheet)
+    val queries = Queries( Array(Query( eQuery )) )    
 
     withOutputStream( "test2.xls" ) { out =>
-      excelConverter.save( out )
+      queries.save( out )
     }
   }
 
